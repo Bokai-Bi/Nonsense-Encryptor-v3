@@ -1,26 +1,34 @@
 import random
 
-def encrypt(fileName, seedProvided, newF):
-    random.seed(seedProvided)
-    byte_arr = bytearray([])
+def encrypt(fileName, seed_provided, newF):
+    random.seed(seed_provided)
     with open(fileName, "rb") as readF:
         with open(newF, "wb") as writeF:
-            while (byte := readF.read(1)):
-                int_rep = int.from_bytes(byte, "big")
-                int_rep += random.randint(0, 255)
-                int_rep %= 256
-                byte_arr.append(int_rep)
-            writeF.write(byte_arr)
+            byte_arr = bytearray(readF.read())
+            writeF.write(encrypt_bytes(byte_arr, seed_provided))
+            
+def encrypt_bytes(byte_arr, seed_provided):
+    random.seed(seed_provided)
+    out_byte_arr = bytearray([])
+    for byte in byte_arr:
+        byte += random.randint(0, 255)
+        byte %= 256
+        out_byte_arr.append(byte)
+    return out_byte_arr
 
-def decrypt(inF, seedProvided, outF):
-    random.seed(seedProvided)
-    byte_arr = bytearray([])
+def decrypt_bytes(byte_arr, seed_provided):
+    random.seed(seed_provided)
+    out_byte_arr = bytearray([])
+    for byte in byte_arr:
+        byte -= random.randint(0, 255)
+        byte += 256
+        byte %= 256
+        out_byte_arr.append(byte)
+    return out_byte_arr
+
+def decrypt(inF, seed_provided, outF):
+    random.seed(seed_provided)
     with open(inF, "rb") as readF:
         with open(outF, "wb") as writeF:
-            while (byte := readF.read(1)):
-                int_rep = int.from_bytes(byte, "big")
-                int_rep -= random.randint(0, 255)
-                int_rep += 256
-                int_rep %= 256
-                byte_arr.append(int_rep)
-            writeF.write(byte_arr)
+            byte_arr = bytearray(readF.read())
+            writeF.write(decrypt_bytes(byte_arr, seed_provided))
